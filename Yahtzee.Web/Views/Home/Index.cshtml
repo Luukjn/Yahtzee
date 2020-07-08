@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <input id="btnRollDice" type="button" value="Roll Dice" />
+</div>
+<div id="result">
+</div>
+
+<script>
+    $(function () {
+        $("#btnRollDice")
+            .click(function () {
+                $.get('@Url.Action("RollDice")', function (data) {
+                    $('#result').empty();
+                    $.each(data, function (i, die) {
+                        
+                        $("#result").append($('<h1>')
+                            .addClass('fa')
+                            .addClass(GetIconClass(die.Result)));
+                },'json');
+            });
+        });
+    });
+
+    function GetIconClass(result) {
+        var iconClass = 'fa-dice-';
+        switch (result) {
+            case 1:
+                return iconClass + 'one';
+            case 2:
+                return iconClass + 'two';
+            case 3:
+                return iconClass + 'three';
+            case 4:
+                return iconClass + 'four';
+            case 5:
+                return iconClass + 'five';
+            case 6:
+                return iconClass + 'six';
+        }
+    }
+</script>
