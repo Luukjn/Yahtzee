@@ -5,20 +5,38 @@
 <div class="text-center">
     <input id="btnRollDice" type="button" value="Roll Dice" />
 </div>
-<div id="result">
+<table>
+    <tr id="result">
+
+    </tr>
+    <tr id="keep">
+
+    </tr>
+</table>
+<div >
 </div>
 
 <script>
     $(function () {
         $("#btnRollDice")
             .click(function () {
-                $.get('@Url.Action("RollDice")', function (data) {
+                $.get('@Url.Action("RollDice", new { diceCount = 5 })', function (data) {
                     $('#result').empty();
+                    $('#keep').empty();
                     $.each(data, function (i, die) {
                         
-                        $("#result").append($('<h1>')
-                            .addClass('fa')
-                            .addClass(GetIconClass(die.Result)));
+                        $("#result")
+                            .append($('<td>')
+                                .append($('<h1>')
+                                    .addClass('fa')
+                                    .addClass(GetIconClass(die.Result))));
+                        $("#keep")
+                            .append($('<td>')
+                                .css('text-align', 'center')
+                                .append($('<input>')
+                                    .attr('type', 'checkbox')
+                                    .attr('name', 'dice' + (i + 1))
+                                    .attr('id', 'dice' + (i + 1))));
                 },'json');
             });
         });

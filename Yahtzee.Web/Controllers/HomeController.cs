@@ -37,10 +37,10 @@ namespace Yahtzee.Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult RollDice()
+        public IActionResult RollDice(int diceCount)
         {
             var dice = new List<Die>();
-            for(int i = 0; i < 5; i++)
+            for(int i = 0; i < diceCount; i++)
             {
                 dice.Add(new Die
                 {

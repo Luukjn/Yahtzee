@@ -13,7 +13,7 @@ namespace Yahtzee.Model.Domain
 
         public void Roll()
         {
-            Result = RandomGenerator.TlRng.Value.Next(1, Sides);
+            Result = RandomGenerator.TlRng.Value.Next(1, Sides+1);
         }
     }
 }
