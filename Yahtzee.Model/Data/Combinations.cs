@@ -180,5 +180,11 @@ namespace Yahtzee.Model.Data
                 GrandTotal = Total1 + Bonus + Total2;
             }
         }
+
+        public void AddDiceToCombination(CombinationsEnum type, List<Die> dice)
+        {
+            var combination = CombinationsList.First(c => c.Type == type);
+            combination.Dice = dice;
+        }
     }
 }
