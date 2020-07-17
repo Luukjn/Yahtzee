@@ -8,7 +8,7 @@ using Yahtzee.Model.Domain;
 
 namespace Yahtzee.Model.Data
 {
-    class Combinations
+    public class Combinations
     {
         public List<Combination> CombinationsList { get; }
         public int Total1 { get; private set; }
@@ -23,50 +23,62 @@ namespace Yahtzee.Model.Data
                 new Combination
                 {
                     Type = CombinationsEnum.Ones,
-                    CalculatedResult = (dice) => dice
-                        .Where(d => d.Result == 1)
-                        .Sum(d => d.Result)
+                    part = 1,
+                    CalculatedResult = (dice) => dice != null ? dice
+                            .Where(d => d.Result == 1)
+                            .Sum(d => d.Result) : 0
                 },
                 new Combination
                 {
                     Type = CombinationsEnum.Twoes,
-                    CalculatedResult = (dice) => dice
+                    part = 1,
+                    CalculatedResult = (dice) => dice != null ? dice
                         .Where(d => d.Result == 2)
-                        .Sum(d => d.Result)
+                        .Sum(d => d.Result) : 0
                 },
                 new Combination
                 {
                     Type = CombinationsEnum.Threes,
-                    CalculatedResult = (dice) => dice
+                    part = 1,
+                    CalculatedResult = (dice) => dice != null ? dice
                         .Where(d => d.Result == 3)
-                        .Sum(d => d.Result)
+                        .Sum(d => d.Result) : 0
                 },
                 new Combination
                 {
                     Type = CombinationsEnum.Fours,
-                    CalculatedResult = (dice) => dice
+                    part = 1,
+                    CalculatedResult = (dice) => dice != null ? dice
                         .Where(d => d.Result == 4)
-                        .Sum(d => d.Result)
+                        .Sum(d => d.Result) : 0
                 },
                 new Combination
                 {
                     Type = CombinationsEnum.Fives,
-                    CalculatedResult = (dice) => dice
+                    part = 1,
+                    CalculatedResult = (dice) => dice != null ? dice
                         .Where(d => d.Result == 5)
-                        .Sum(d => d.Result)
+                        .Sum(d => d.Result) : 0
                 },
                 new Combination
                 {
                     Type = CombinationsEnum.Sixes,
-                    CalculatedResult = (dice) => dice
+                    part = 1,
+                    CalculatedResult = (dice) => dice != null ? dice
                         .Where(d => d.Result == 6)
-                        .Sum(d => d.Result)
+                        .Sum(d => d.Result) : 0
                 },
                 new Combination
                 {
                     Type = CombinationsEnum.ThreeOfaKind,
+                    part = 2,
                     CalculatedResult = (dice) =>
                     {
+                        if(dice == null)
+                        {
+                            return 0;
+                        }
+
                         var duplicates = dice.GetDuplicateCounts(d => d.Result);
                         if(duplicates.First().Count >= 3)
                         {
@@ -78,7 +90,13 @@ namespace Yahtzee.Model.Data
                 new Combination
                 {
                     Type = CombinationsEnum.Carre,
+                    part = 2,
                     CalculatedResult = (dice) => {
+                        if(dice == null)
+                        {
+                            return 0;
+                        }
+
                         var duplicates = dice.GetDuplicateCounts(d => d.Result);
                         if(duplicates.First().Count >= 4)
                         {
@@ -90,8 +108,14 @@ namespace Yahtzee.Model.Data
                 new Combination
                 {
                     Type = CombinationsEnum.FullHouse,
+                    part = 2,
                     CalculatedResult = (dice) =>
                     {
+                        if(dice == null)
+                        {
+                            return 0;
+                        }
+
                         var duplicates = dice.GetDuplicateCounts(d => d.Result);
                         if(duplicates.First().Count == 3)
                         {
@@ -107,8 +131,14 @@ namespace Yahtzee.Model.Data
                 new Combination
                 {
                     Type = CombinationsEnum.SmallStreet,
+                    part = 2,
                     CalculatedResult = (dice) =>
                     {
+                        if(dice == null)
+                        {
+                            return 0;
+                        }
+
                         var sequences = dice.GetSequences(d => d.Result);
                         if(sequences.First().Count() >= 4)
                         {
@@ -120,8 +150,14 @@ namespace Yahtzee.Model.Data
                 new Combination
                 {
                     Type = CombinationsEnum.BigStreet,
+                    part = 2,
                     CalculatedResult = (dice) =>
                     {
+                        if(dice == null)
+                        {
+                            return 0;
+                        }
+
                         var sequences = dice.GetSequences(d => d.Result);
                         if(sequences.First().Count() >= 5)
                         {
@@ -133,8 +169,14 @@ namespace Yahtzee.Model.Data
                 new Combination
                 {
                     Type = CombinationsEnum.Yahtzee,
+                    part = 2,
                     CalculatedResult = (dice) =>
                     {
+                        if(dice == null)
+                        {
+                            return 0;
+                        }
+
                         var duplicates = dice.GetDuplicateCounts(d => d.Result);
                         if(duplicates.First().Count >= 5)
                         {
@@ -146,15 +188,19 @@ namespace Yahtzee.Model.Data
                 new Combination
                 {
                     Type = CombinationsEnum.Change,
-                    CalculatedResult = (dice) => dice.Sum(d => d.Result)
+                    part = 2,
+                    CalculatedResult = (dice) => dice != null ? dice.Sum(d => d.Result) : 0
                 }
             };
         }
 
         public void CalculateTotals()
         {
-            foreach(var combination in CombinationsList)
-            {
+            Total1 = 0;
+            Total2 = 0;
+            Bonus = 0;
+            foreach (var combination in CombinationsList)
+            {                
                 switch(combination.Type)
                 {
                     case CombinationsEnum.Ones:
@@ -163,7 +209,7 @@ namespace Yahtzee.Model.Data
                     case CombinationsEnum.Fours:
                     case CombinationsEnum.Fives:
                     case CombinationsEnum.Sixes:
-                        Total1 += combination.CalculatedResult(combination.Dice);
+                        Total1 += combination.Result;
                         break;
                     case CombinationsEnum.ThreeOfaKind:
                     case CombinationsEnum.Carre:
@@ -172,7 +218,7 @@ namespace Yahtzee.Model.Data
                     case CombinationsEnum.BigStreet:
                     case CombinationsEnum.Yahtzee:
                     case CombinationsEnum.Change:
-                        Total2 += combination.CalculatedResult(combination.Dice);
+                        Total2 += combination.Result;
                         break;
                 }
 
@@ -185,6 +231,7 @@ namespace Yahtzee.Model.Data
         {
             var combination = CombinationsList.First(c => c.Type == type);
             combination.Dice = dice;
+            CalculateTotals();
         }
     }
 }

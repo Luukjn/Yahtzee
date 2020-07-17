@@ -9,7 +9,7 @@ namespace Yahtzee.Model.Domain
     {
         public int Sides { get; set; }
 
-        public int Result { get; private set; }
+        public int Result { get; set; }
 
         public void Roll()
         {
