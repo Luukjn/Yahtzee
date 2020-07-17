@@ -1,9 +1,11 @@
-﻿@{
+﻿@model Yahtzee.Model.Data.Combinations
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <input id="btnRollDice" type="button" value="Roll Dice" />
+    <button id="btnRollDice" type="button">Roll Dice</button>
 </div>
 <table>
     <tr id="result">
@@ -13,18 +15,99 @@
 
     </tr>
 </table>
+<script>
+    var combinations = [];
+</script>
+<table border="1">
+    @{ int i = 0; } 
+    @foreach (var combination in Model.CombinationsList)
+    {
+        <text>
+            <tr>
+                <td>
+                    @combination.Type.ToString()
+                </td>
+                <td>
+                    @combination.Result
+                </td>
+                <td>
+                    <script>
+                        combinations[@i] = '@combination.Type';
+                    </script>
+                    <button id="@combination.Type" onclick="AddCombination(this.id)" hidden="@(combination.Dice != null)">Place</button>
+                </td>
+            </tr>
+        </text>
+        i++;
+    }
+    <tr>
+        <td>Result1</td>
+        <td>@(Model.Total1)</td>
+    </tr>
+    <tr>
+        <td>Bonus</td>
+        <td>@(Model.Bonus)</td>
+    </tr>
+    <tr>
+        <td>Total1 + Bonus</td>
+        <td>@(Model.Bonus + Model.Total1)</td>
+    </tr>
+    <tr>
+        <td>Total2</td>
+        <td>@(Model.Total2)</td>
+    </tr>
+    <tr>
+        <td>GrandTotal</td>
+        <td>@(Model.GrandTotal)</td>
+    </tr>
+</table>
+
 <div >
 </div>
 
 <script>
+    var dice = [];
+    var rerollCount = 0;
+
     $(function () {
         $("#btnRollDice")
             .click(function () {
-                $.get('@Url.Action("RollDice", new { diceCount = 5 })', function (data) {
+
+                var checkboxes = $('.reroll');
+
+                var dieRerollCount = 0;
+
+                rerollCount++;
+                if (rerollCount > 3) {
+                    return;
+                }
+
+                if (dice.length === 0) {
+                    dieRerollCount = 5;
+                }
+                else {
+                    for (var i = 0; i < checkboxes.length; i++) {
+                        var check = $(checkboxes[i]);
+                        if (check.is(':checked')) {
+                            dieRerollCount++;
+                            dice[i] = null;
+                        }
+                    }
+                }
+
+                $.get('@Url.Action("RollDice")?diceCount=' + dieRerollCount, function (data) {
                     $('#result').empty();
                     $('#keep').empty();
                     $.each(data, function (i, die) {
-                        
+                        for (var j = 0; j < 5; j++) {
+                            if (!dice[j]) {
+                                dice[j] = die;
+                                break;
+                            }
+                        }
+                    }, 'json');
+
+                    $.each(dice, function (i, die) {
                         $("#result")
                             .append($('<td>')
                                 .append($('<h1>')
@@ -36,8 +119,9 @@
                                 .append($('<input>')
                                     .attr('type', 'checkbox')
                                     .attr('name', 'dice' + (i + 1))
-                                    .attr('id', 'dice' + (i + 1))));
-                },'json');
+                                    .attr('id', 'dice' + (i + 1))
+                                    .attr('class', 'reroll')));
+                    });                    
             });
         });
     });
@@ -58,5 +142,11 @@
             case 6:
                 return iconClass + 'six';
         }
+    }
+
+    function AddCombination(type) {
+        AjaxFunctions.ajaxPost('@Url.Action("AddCombination")?type=' + type, { dice }, function () {
+            window.location = '@Url.Action("Index")';
+        });
     }
 </script>

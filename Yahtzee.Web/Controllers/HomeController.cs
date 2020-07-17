@@ -9,21 +9,33 @@ using Yahtzee.Web.Models;
 using Yahtzee.Model.Domain;
 using Newtonsoft.Json;
 using System.Net.Mime;
+using Yahtzee.Model;
+using Yahtzee.Model.Data;
+using Microsoft.Extensions.Caching.Memory;
+using Yahtzee.Web.Definitions;
 
 namespace Yahtzee.Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IMemoryCache _cache;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IMemoryCache memoryCache)
         {
             _logger = logger;
+            _cache = memoryCache;
         }
 
         public IActionResult Index()
         {
-            return View();
+            if (!_cache.TryGetValue(CacheKeys.Combinations, out Combinations combinations))
+            {
+                combinations = new Combinations();
+                _cache.Set(CacheKeys.Combinations, combinations);
+            }
+
+            return View(combinations);
         }
 
         public IActionResult Privacy()
@@ -55,6 +67,18 @@ namespace Yahtzee.Web.Controllers
 
             var jsonResult = JsonConvert.SerializeObject(dice);
             return Content(jsonResult, MediaTypeNames.Application.Json);
+        }
+
+        public IActionResult AddCombination(CombinationsEnum type, List<Die> dice)
+        {
+            if (!_cache.TryGetValue(CacheKeys.Combinations, out Combinations combinations))
+            {
+                combinations = new Combinations();
+                _cache.Set(CacheKeys.Combinations, combinations);
+            }
+            combinations.AddDiceToCombination(type, dice);
+            _cache.Set(CacheKeys.Combinations, combinations);
+            return Ok();
         }
     }
 }

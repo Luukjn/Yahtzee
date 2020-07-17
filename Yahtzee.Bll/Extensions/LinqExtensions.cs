@@ -26,7 +26,7 @@ namespace Yahtzee.Bll.Extensions
 
             var result = new List<List<TSource>>();
 
-            foreach(var line in list)
+            foreach(var line in orderedList)
             {
                 List<TSource> lists = result.LastOrDefault();
                 if (lists == null)
@@ -39,6 +39,11 @@ namespace Yahtzee.Bll.Extensions
                 var number = keySelector(line);
 
                 var lastNumber = lists.Select(l => keySelector(l)).Last();
+
+                if(number == lastNumber)
+                {
+                    continue;
+                }
 
                 if (number != lastNumber + 1)
                 {
