@@ -4,8 +4,29 @@
     ViewData["Title"] = "Home Page";
 }
 
+<script>
+    function GetIconClass(result) {
+        var iconClass = 'fa-dice-';
+        switch (result) {
+            case 1:
+                return iconClass + 'one';
+            case 2:
+                return iconClass + 'two';
+            case 3:
+                return iconClass + 'three';
+            case 4:
+                return iconClass + 'four';
+            case 5:
+                return iconClass + 'five';
+            case 6:
+                return iconClass + 'six';
+        }
+    }
+</script>
+
 <div class="text-center">
-    <button id="btnRollDice" type="button">Roll Dice</button>
+    <button id="btnRollDice">Roll Dice</button>
+    <button id="btnReset">Reset Game</button>
 </div>
 <table>
     <tr id="result">
@@ -30,11 +51,24 @@
                 <td>
                     @combination.Result
                 </td>
-                <td>
+                <td id="td@(combination.Type)">
                     <script>
                         combinations[@i] = '@combination.Type';
                     </script>
                     <button id="@combination.Type" onclick="AddCombination(this.id)" hidden="@(combination.Dice != null)">Place</button>
+                    @if(combination.Dice != null)
+                    {
+                        foreach(var die in combination.Dice)
+                        {
+                            <text>
+                                <script>
+                                    $('#td@(combination.Type)').append($('<span>')
+                                        .addClass('fa')
+                                        .addClass(GetIconClass(@die.Result)));
+                                </script>
+                            </text>
+                        }
+                    }
                 </td>
             </tr>
         </text>
@@ -121,28 +155,17 @@
                                     .attr('name', 'dice' + (i + 1))
                                     .attr('id', 'dice' + (i + 1))
                                     .attr('class', 'reroll')));
-                    });                    
+                    });
             });
         });
-    });
 
-    function GetIconClass(result) {
-        var iconClass = 'fa-dice-';
-        switch (result) {
-            case 1:
-                return iconClass + 'one';
-            case 2:
-                return iconClass + 'two';
-            case 3:
-                return iconClass + 'three';
-            case 4:
-                return iconClass + 'four';
-            case 5:
-                return iconClass + 'five';
-            case 6:
-                return iconClass + 'six';
-        }
-    }
+        $('#btnReset').click(function () {
+
+            AjaxFunctions.ajaxPost('@Url.Action("Reset")', null, function () {
+            window.location = '@Url.Action("Index")';
+        });
+        });
+    });
 
     function AddCombination(type) {
         AjaxFunctions.ajaxPost('@Url.Action("AddCombination")?type=' + type, { dice }, function () {

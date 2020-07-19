@@ -80,5 +80,11 @@ namespace Yahtzee.Web.Controllers
             _cache.Set(CacheKeys.Combinations, combinations);
             return Ok();
         }
+
+        public IActionResult Reset()
+        {
+            _cache.Remove(CacheKeys.Combinations);
+            return Ok();
+        }
     }
 }

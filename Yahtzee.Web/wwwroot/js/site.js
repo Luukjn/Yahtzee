@@ -46,7 +46,7 @@ var AjaxFunctions = new function () {
             })
             .done(
                 function () {
-                    notifyInternal(ajaxDoneMessage, "success");
+                    //notifyInternal(ajaxDoneMessage, "success");
                     if (doneAction) {
                         doneAction();
                     }
